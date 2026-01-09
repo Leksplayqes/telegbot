@@ -9,67 +9,547 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 0; background: #fff; }
-    .wrap { padding: 16px; max-width: 480px; margin: 0 auto; }
-    .card { border: 1px solid #eee; border-radius: 14px; padding: 16px; }
-    .title { font-size: 20px; margin: 0 0 8px; }
-    .price { font-size: 18px; font-weight: 700; margin: 10px 0; }
-    .btn { width: 100%; padding: 14px 16px; border: 0; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; }
-    .btn-primary { background: #2ea6ff; color: #fff; }
-    .muted { color: #666; font-size: 13px; margin-top: 10px; }
-    .row { display: flex; gap: 10px; margin-top: 12px; }
-    .btn-secondary { background: #f3f3f3; color: #111; }
+    :root{
+      --bg: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --card: #ffffff;
+      --border: #e5e7eb;
+      --shadow: 0 10px 25px rgba(2,6,23,.06);
+      --accent: #ef4444;  /* красный акцент */
+      --tab: #0f172a;
+      --tabMuted: #94a3b8;
+      --tabBg: rgba(255,255,255,.92);
+      --radius: 16px;
+      --max: 520px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* Layout */
+    .app{
+      max-width: var(--max);
+      margin: 0 auto;
+      min-height: 100vh;
+      padding-bottom: 86px; /* место под нижнее меню */
+    }
+
+    .topbar{
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .topbar-inner{
+      padding: 14px 16px;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width: 0;
+    }
+    .logo{
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), #fb7185);
+      box-shadow: var(--shadow);
+      flex: 0 0 auto;
+    }
+    .brand-title{
+      font-weight: 800;
+      letter-spacing: .2px;
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .brand-sub{
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border:1px solid var(--border);
+      border-radius: 999px;
+      background: #fff;
+      font-size: 12px;
+      color: var(--muted);
+      flex: 0 0 auto;
+    }
+    .dot{
+      width:8px;height:8px;border-radius:999px;background:#22c55e;
+      box-shadow: 0 0 0 4px rgba(34,197,94,.12);
+    }
+
+    .content{
+      padding: 14px 16px 20px;
+    }
+
+    .hero{
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: radial-gradient(1200px 380px at 30% -40%, rgba(239,68,68,.20), transparent 60%),
+                  radial-gradient(1200px 380px at 80% -60%, rgba(59,130,246,.14), transparent 60%),
+                  #fff;
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+    .hero h1{
+      margin:0 0 8px;
+      font-size: 20px;
+      letter-spacing: .2px;
+    }
+    .hero p{
+      margin:0;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    .grid{
+      margin-top: 12px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .card h2{
+      margin:0 0 8px;
+      font-size: 16px;
+    }
+    .card .muted{
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .list{
+      margin: 10px 0 0;
+      padding: 0 0 0 18px;
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .list li{ margin: 6px 0; color: var(--muted); }
+    .list li b{ color: var(--text); font-weight: 700; }
+
+    .btnrow{
+      display:flex;
+      gap:10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .btn{
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 14px;
+      flex: 1 1 auto;
+      min-width: 140px;
+    }
+    .btn-primary{
+      background: var(--accent);
+      border-color: var(--accent);
+      color:#fff;
+    }
+    .btn:active{ transform: translateY(1px); }
+
+    /* Sections */
+    section{ display:none; }
+    section.active{ display:block; }
+
+    /* Bottom tabs */
+    .tabs{
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      display:flex;
+      justify-content:center;
+      z-index: 30;
+      pointer-events: none; /* чтобы центрировалось */
+    }
+    .tabs-inner{
+      pointer-events: auto;
+      width: min(var(--max), 100%);
+      background: var(--tabBg);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      padding: 8px 10px 10px;
+      display:flex;
+      gap: 6px;
+      justify-content: space-between;
+    }
+    .tab{
+      flex:1;
+      border:0;
+      background: transparent;
+      padding: 8px 6px;
+      border-radius: 14px;
+      cursor: pointer;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap: 6px;
+      color: var(--tabMuted);
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .tab svg{ width:22px; height:22px; }
+    .tab.active{
+      color: var(--tab);
+      background: rgba(15,23,42,.06);
+    }
+    .tab .badge{
+      position: absolute;
+      transform: translate(10px,-8px);
+      background: var(--accent);
+      color: #fff;
+      border-radius: 999px;
+      padding: 2px 6px;
+      font-size: 10px;
+      font-weight: 800;
+      border: 2px solid #fff;
+    }
+    .iconWrap{
+      position: relative;
+      line-height: 0;
+    }
+
+    /* Small helpers */
+    .divider{ height:1px;background:var(--border);margin:12px 0; }
+    .kv{ display:grid; grid-template-columns: 120px 1fr; gap: 8px; margin-top:10px; font-size:13px; }
+    .kv div:nth-child(odd){ color: var(--muted); }
+    .kv div:nth-child(even){ color: var(--text); font-weight: 600; }
+
+    /* Product mock */
+    .product{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+    }
+    .ph{
+      width:72px;height:72px;border-radius:16px;
+      background: linear-gradient(135deg, rgba(239,68,68,.22), rgba(59,130,246,.18));
+      border: 1px solid var(--border);
+      flex: 0 0 auto;
+    }
+    .pname{ font-weight: 800; }
+    .pdesc{ color: var(--muted); font-size: 13px; line-height: 1.35; margin-top: 4px;}
+    .price{ margin-top: 10px; font-weight: 900; font-size: 16px; }
+    .small{ font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+    a{ color: inherit; }
   </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1 class="title">Один товар</h1>
-      <div>Короткое описание товара. Доставка/доступ — как у тебя.</div>
-      <div class="price">990 ₽</div>
-
-      <button class="btn btn-primary" id="buyBtn">Купить</button>
-
-      <div class="row">
-        <button class="btn btn-secondary" id="supportBtn">Поддержка</button>
-        <button class="btn btn-secondary" id="closeBtn">Закрыть</button>
+  <div class="app">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <div class="logo"></div>
+          <div style="min-width:0">
+            <div class="brand-title" id="brandTitle">Ваш бренд</div>
+            <div class="brand-sub" id="brandSub">Магазин в Telegram</div>
+          </div>
+        </div>
+        <div class="chip" title="Статус">
+          <span class="dot"></span>
+          <span id="userChip">Онлайн</span>
+        </div>
       </div>
+    </header>
 
-      <div class="muted" id="who"></div>
-    </div>
+    <main class="content">
+      <!-- Главная -->
+      <section id="home" class="active">
+        <div class="hero">
+          <h1>Добро пожаловать 👋</h1>
+          <p>Это мини-сайт, который открывается внутри Telegram. Здесь можно разместить каталог, оплату и информацию о компании.</p>
+        </div>
+
+        <div class="grid">
+          <div class="card">
+            <h2>Быстрые действия</h2>
+            <div class="btnrow">
+              <button class="btn btn-primary" data-go="shop">Перейти в магазин</button>
+              <button class="btn" data-go="about">О нас</button>
+            </div>
+            <div class="small" id="tgHint"></div>
+          </div>
+
+          <div class="card">
+            <h2>Контакты</h2>
+            <div class="kv">
+              <div>Telegram</div><div><a id="tgLink" href="https://t.me/your_support" target="_blank" rel="noreferrer">@your_support</a></div>
+              <div>Телефон</div><div id="phone">+7 (___) ___-__-__</div>
+              <div>Город</div><div id="city">Ваш город</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Магазин -->
+      <section id="shop">
+        <div class="card">
+          <h2>Магазин</h2>
+          <div class="muted">Пример карточки одного товара. Можно расширить до каталога.</div>
+          <div class="divider"></div>
+
+          <div class="product">
+            <div class="ph"></div>
+            <div>
+              <div class="pname" id="productName">Один товар</div>
+              <div class="pdesc" id="productDesc">Короткое описание товара (что входит, сроки, условия).</div>
+              <div class="price" id="productPrice">990 ₽</div>
+              <div class="btnrow">
+                <button class="btn btn-primary" id="buyBtn">Купить</button>
+                <button class="btn" id="addFavBtn">В избранное</button>
+              </div>
+              <div class="small">После нажатия «Купить» можно открыть платёжную ссылку или Telegram оплату.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Избранное -->
+      <section id="fav">
+        <div class="card">
+          <h2>Избранное</h2>
+          <div class="muted" id="favText">Пока пусто. Добавь товар в избранное в разделе «Магазин».</div>
+        </div>
+      </section>
+
+      <!-- Корзина -->
+      <section id="cart">
+        <div class="card">
+          <h2>Корзина</h2>
+          <div class="muted" id="cartText">Корзина пуста. Нажми «Купить» в магазине, или мы можем сделать добавление в корзину.</div>
+          <div class="btnrow" style="margin-top:12px">
+            <button class="btn btn-primary" id="checkoutBtn">Перейти к оплате</button>
+            <button class="btn" id="clearCartBtn">Очистить</button>
+          </div>
+          <div class="small" id="cartSum"></div>
+        </div>
+      </section>
+
+      <!-- Аккаунт -->
+      <section id="account">
+        <div class="card">
+          <h2>Аккаунт</h2>
+          <div class="muted" id="accountText">Открой внутри Telegram — покажу твоё имя/username.</div>
+        </div>
+      </section>
+
+      <!-- О нас -->
+      <section id="about">
+        <div class="card">
+          <h2>О нас</h2>
+          <div class="muted">
+            Здесь текст “как в референсе”: кто вы, чем занимаетесь, условия работы.
+          </div>
+          <ul class="list" id="aboutList">
+            <li><b>Работаем</b> быстро и прозрачно.</li>
+            <li><b>Поддержка</b> в Telegram.</li>
+            <li><b>Оплата</b> онлайн.</li>
+          </ul>
+
+          <div class="divider"></div>
+
+          <h2 style="margin-top:0">Реквизиты / контакты</h2>
+          <div class="kv">
+            <div>Telegram</div><div><a href="https://t.me/your_support" target="_blank" rel="noreferrer">@your_support</a></div>
+            <div>Телефон</div><div>+7 (___) ___-__-__</div>
+            <div>Email</div><div>mail@example.com</div>
+          </div>
+
+          <div class="btnrow" style="margin-top:12px">
+            <button class="btn btn-primary" id="toSupportBtn">Написать в поддержку</button>
+            <button class="btn" id="closeBtn">Закрыть</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Bottom tabs -->
+  <div class="tabs">
+    <nav class="tabs-inner" aria-label="Навигация">
+      <button class="tab active" data-tab="home">
+        <span class="iconWrap">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        </span>
+        Главная
+      </button>
+
+      <button class="tab" data-tab="shop">
+        <span class="iconWrap">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M6 7h15l-1.5 9.5a2 2 0 0 1-2 1.5H9a2 2 0 0 1-2-1.6L5 4H2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        Магазин
+      </button>
+
+      <button class="tab" data-tab="fav">
+        <span class="iconWrap">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.6-9.5-8.8C.7 8.6 3 5.5 6.6 5.5c1.8 0 3.1.9 3.9 1.9.8-1 2.1-1.9 3.9-1.9C18 5.5 20.3 8.6 21.5 12.2 19 16.4 12 21 12 21Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        </span>
+        Избранное
+      </button>
+
+      <button class="tab" data-tab="cart">
+        <span class="iconWrap">
+          <span class="badge" id="cartBadge" style="display:none">1</span>
+          <svg viewBox="0 0 24 24" fill="none"><path d="M7 7h14l-1.2 8.2a2 2 0 0 1-2 1.8H9a2 2 0 0 1-2-1.7L5 3H2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.5 21a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM17.5 21a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" fill="currentColor"/></svg>
+        </span>
+        Корзина
+      </button>
+
+      <button class="tab" data-tab="account">
+        <span class="iconWrap">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M20 21a8 8 0 1 0-16 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" stroke="currentColor" stroke-width="1.8"/></svg>
+        </span>
+        Аккаунт
+      </button>
+    </nav>
   </div>
 
   <script>
+    // --- Telegram init ---
     const tg = window.Telegram?.WebApp;
+    const tgHint = document.getElementById("tgHint");
+    const userChip = document.getElementById("userChip");
+    const accountText = document.getElementById("accountText");
 
-    // Аккуратно инициализируем WebApp
     if (tg) {
       tg.ready();
-      tg.expand(); // раскрыть окно на максимум
+      tg.expand();
+      tgHint.textContent = "Открыто в Telegram Web App ✅";
 
-      // показать пользователя (для проверки, что WebApp реально открыт в Telegram)
       const u = tg.initDataUnsafe?.user;
       if (u) {
-        document.getElementById("who").textContent =
-          `Вы вошли как: ${u.first_name}${u.username ? " (@" + u.username + ")" : ""}`;
+        userChip.textContent = u.first_name + (u.username ? " @" + u.username : "");
+        accountText.innerHTML = `
+          Вы вошли как <b>${escapeHtml(u.first_name)}</b>
+          ${u.username ? `(@${escapeHtml(u.username)})` : ""}
+          <div style="margin-top:8px" class="muted">Telegram ID: ${u.id}</div>
+        `;
+      } else {
+        userChip.textContent = "Telegram";
+        accountText.textContent = "Данные пользователя недоступны (открой в Telegram).";
       }
     } else {
-      document.getElementById("who").textContent =
-        "Откройте страницу внутри Telegram, чтобы работали функции WebApp.";
+      tgHint.textContent = "Подсказка: открой ссылку внутри Telegram, чтобы работали функции Mini App.";
+      userChip.textContent = "Браузер";
     }
 
-    // Кнопка Купить — здесь 2 пути:
-    // 1) Самое простое: перекинуть на оплату по ссылке (ЮKassa/Stripe/CloudPayments/Robokassa и т.п.)
-    // 2) Более правильно: делать оплату на сервере + валидация initData (чтобы знать кто купил)
+    // --- Simple state ---
+    const state = {
+      fav: JSON.parse(localStorage.getItem("fav") || "false"),
+      cart: JSON.parse(localStorage.getItem("cart") || "false"),
+      price: 990
+    };
+
+    const cartBadge = document.getElementById("cartBadge");
+    const favText = document.getElementById("favText");
+    const cartText = document.getElementById("cartText");
+    const cartSum = document.getElementById("cartSum");
+
+    function syncUI() {
+      favText.textContent = state.fav
+        ? "Товар добавлен в избранное ✅"
+        : "Пока пусто. Добавь товар в избранное в разделе «Магазин».";
+      cartText.textContent = state.cart
+        ? "В корзине 1 товар ✅"
+        : "Корзина пуста. Нажми «Купить» в магазине, или мы можем сделать добавление в корзину.";
+      cartSum.textContent = state.cart ? `Сумма: ${state.price} ₽` : "";
+      cartBadge.style.display = state.cart ? "inline-block" : "none";
+    }
+    syncUI();
+
+    // --- Tabs ---
+    const tabs = document.querySelectorAll(".tab");
+    const sections = document.querySelectorAll("main section");
+
+    function go(tabId) {
+      sections.forEach(s => s.classList.toggle("active", s.id === tabId));
+      tabs.forEach(t => t.classList.toggle("active", t.dataset.tab === tabId));
+      // немного прокрутки вверх для ощущения "страницы"
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+
+    tabs.forEach(btn => btn.addEventListener("click", () => go(btn.dataset.tab)));
+    document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => go(b.dataset.go)));
+
+    // --- Buttons ---
+    document.getElementById("addFavBtn").addEventListener("click", () => {
+      state.fav = !state.fav;
+      localStorage.setItem("fav", JSON.stringify(state.fav));
+      syncUI();
+      if (tg) tg.HapticFeedback?.impactOccurred("light");
+      go("fav");
+    });
+
+    // Купить: положим в корзину и предложим оплату (можно сделать сразу оплату)
     document.getElementById("buyBtn").addEventListener("click", () => {
-      // ВАРИАНТ A: просто открыть ссылку на оплату (замени на свою)
-      const payUrl = "https://example.com/pay"; // <-- сюда свою ссылку
+      state.cart = true;
+      localStorage.setItem("cart", JSON.stringify(state.cart));
+      syncUI();
+      if (tg) tg.HapticFeedback?.impactOccurred("medium");
+      go("cart");
+    });
+
+    // Оплата: сейчас заглушка ссылкой. Заменишь payUrl на свою платёжную ссылку.
+    document.getElementById("checkoutBtn").addEventListener("click", () => {
+      if (!state.cart) return;
+
+      const payUrl = "https://example.com/pay"; // <-- вставь ссылку оплаты (ЮKassa/CloudPayments/Stripe и т.п.)
       if (tg) tg.openLink(payUrl);
       else window.location.href = payUrl;
     });
 
-    document.getElementById("supportBtn").addEventListener("click", () => {
-      const support = "https://t.me/your_support"; // <-- свой саппорт
+    document.getElementById("clearCartBtn").addEventListener("click", () => {
+      state.cart = false;
+      localStorage.setItem("cart", JSON.stringify(state.cart));
+      syncUI();
+      if (tg) tg.HapticFeedback?.impactOccurred("light");
+    });
+
+    document.getElementById("toSupportBtn").addEventListener("click", () => {
+      const support = "https://t.me/your_support"; // <-- вставь свой @
       if (tg) tg.openTelegramLink(support);
       else window.location.href = support;
     });
@@ -78,6 +558,19 @@
       if (tg) tg.close();
       else window.close();
     });
+
+    // --- Helpers ---
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, s => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[s]));
+    }
+
+    // Можно открыть сразу вкладку about через #about
+    if (location.hash) {
+      const id = location.hash.replace("#", "");
+      if (document.getElementById(id)) go(id);
+    }
   </script>
 </body>
 </html>
