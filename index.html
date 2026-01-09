@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Магазин</title>
+
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 0; background: #fff; }
+    .wrap { padding: 16px; max-width: 480px; margin: 0 auto; }
+    .card { border: 1px solid #eee; border-radius: 14px; padding: 16px; }
+    .title { font-size: 20px; margin: 0 0 8px; }
+    .price { font-size: 18px; font-weight: 700; margin: 10px 0; }
+    .btn { width: 100%; padding: 14px 16px; border: 0; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; }
+    .btn-primary { background: #2ea6ff; color: #fff; }
+    .muted { color: #666; font-size: 13px; margin-top: 10px; }
+    .row { display: flex; gap: 10px; margin-top: 12px; }
+    .btn-secondary { background: #f3f3f3; color: #111; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1 class="title">Один товар</h1>
+      <div>Короткое описание товара. Доставка/доступ — как у тебя.</div>
+      <div class="price">990 ₽</div>
+
+      <button class="btn btn-primary" id="buyBtn">Купить</button>
+
+      <div class="row">
+        <button class="btn btn-secondary" id="supportBtn">Поддержка</button>
+        <button class="btn btn-secondary" id="closeBtn">Закрыть</button>
+      </div>
+
+      <div class="muted" id="who"></div>
+    </div>
+  </div>
+
+  <script>
+    const tg = window.Telegram?.WebApp;
+
+    // Аккуратно инициализируем WebApp
+    if (tg) {
+      tg.ready();
+      tg.expand(); // раскрыть окно на максимум
+
+      // показать пользователя (для проверки, что WebApp реально открыт в Telegram)
+      const u = tg.initDataUnsafe?.user;
+      if (u) {
+        document.getElementById("who").textContent =
+          `Вы вошли как: ${u.first_name}${u.username ? " (@" + u.username + ")" : ""}`;
+      }
+    } else {
+      document.getElementById("who").textContent =
+        "Откройте страницу внутри Telegram, чтобы работали функции WebApp.";
+    }
+
+    // Кнопка Купить — здесь 2 пути:
+    // 1) Самое простое: перекинуть на оплату по ссылке (ЮKassa/Stripe/CloudPayments/Robokassa и т.п.)
+    // 2) Более правильно: делать оплату на сервере + валидация initData (чтобы знать кто купил)
+    document.getElementById("buyBtn").addEventListener("click", () => {
+      // ВАРИАНТ A: просто открыть ссылку на оплату (замени на свою)
+      const payUrl = "https://example.com/pay"; // <-- сюда свою ссылку
+      if (tg) tg.openLink(payUrl);
+      else window.location.href = payUrl;
+    });
+
+    document.getElementById("supportBtn").addEventListener("click", () => {
+      const support = "https://t.me/your_support"; // <-- свой саппорт
+      if (tg) tg.openTelegramLink(support);
+      else window.location.href = support;
+    });
+
+    document.getElementById("closeBtn").addEventListener("click", () => {
+      if (tg) tg.close();
+      else window.close();
+    });
+  </script>
+</body>
+</html>
